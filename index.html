@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3Grasp: Diverse and Deformable Dexterous Grasping</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Source+Sans+Pro:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            color: #333333;
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 60px 20px 30px;
+            position: relative;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .title-main {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 3.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            letter-spacing: -1px;
+        }
+        
+        .title-sub {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            color: #34495e;
+        }
+        
+        .authors {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 25px 0 15px;
+        }
+        
+        .author {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .affiliations {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin: 15px 0 30px;
+            font-size: 0.95rem;
+            color: #7f8c8d;
+        }
+        
+        .affiliation {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .affiliation::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: #3498db;
+            border-radius: 50%;
+        }
+        
+        .footnote {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .hero-section {
+            display: flex;
+            gap: 40px;
+            margin: 40px 0;
+            align-items: center;
+        }
+        
+        .hero-text {
+            flex: 1;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            line-height: 1.8;
+        }
+        
+        .hero-text p {
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            margin: 60px 0;
+            position: relative;
+        }
+        
+        /* 修改部分：标题居中 */
+        .section-title {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            position: relative;
+            padding-bottom: 15px;
+            text-align: center; /* 标题文本居中 */
+            display: block; /* 确保宽度100% */
+            width: 100%;
+        }
+        
+        /* 修改部分：下划线居中 */
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%; /* 从50%位置开始 */
+            transform: translateX(-50%); /* 向左移动自身宽度的一半 */
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            border-radius: 2px;
+        }
+        
+        .content {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+        
+        .text-content {
+            flex: 1;
+            font-size: 1.1rem;
+            color: #34495e;
+            line-height: 1.8;
+        }
+        
+        .text-content p {
+            margin-bottom: 20px;
+        }
+        
+        .media-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .image-container {
+            position: relative;
+            padding-top: 56.25%; /* 16:9宽高比 */
+            overflow: hidden;
+        }
+
+        .responsive-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 保持比例填充容器 */
+            border-radius: 8px; /* 可选圆角 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* 可选阴影 */
+        }
+        
+        .image-container {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        /* ===== 修复视频比例问题 ===== */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9宽高比 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 30px;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #3498db;
+            font-size: 1.2rem;
+            font-weight: 500;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            z-index: 2;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-placeholder.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .video-placeholder .play-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+        /* ===== 视频比例修复结束 ===== */
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 50px 20px 30px;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 40px;
+            background: #f8f9fa;
+        }
+        
+        .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 25px 0;
+        }
+        
+        .keyword {
+            background: #eaf2f8;
+            color: #2980b9;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid #d6eaf8;
+        }
+        
+        .abstract-image {
+            height: 380px;
+        }
+        
+        .citation {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+        
+        @media (max-width: 900px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .hero-section {
+                flex-direction: column;
+            }
+            
+            .title-main {
+                font-size: 2.8rem;
+            }
+            
+            .title-sub {
+                font-size: 1.5rem;
+            }
+            
+            .section {
+                margin: 40px 0;
+            }
+            
+            .section-title {
+                font-size: 1.9rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .title-main {
+                font-size: 2.2rem;
+            }
+            
+            .title-sub {
+                font-size: 1.3rem;
+            }
+            
+            .authors, .affiliations {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .section-title {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+  
+    <div class="container">
+        <header>
+            <h1 class="title-main">D3Grasp</h1>
+            <h2 class="title-sub"><b>D</b>iverse and <b>D</b>eformable <b>D</b>exterous Grasping for General Objects</h2>
+            
+            <div class="footnote">Anonymous submission</div>
+        </header>
+        
+        <!-- 多样物体抓取演示 - 修复比例 -->
+        <div class="video-container">
+            <div class="video-placeholder">
+                <i class="fas fa-play-circle play-icon"></i>
+                <div>Diverse Object Grasping Demo</div>
+            </div>
+            <iframe 
+                src="https://www.youtube.com/embed/6qqqMZEsp7Q" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                onload="document.querySelector('.video-placeholder').classList.add('hidden')">
+            </iframe>
+        </div>
+        
+        <div class="hero-section">
+            <div class="hero-text">
+                <h2 class="section-title">Abstract</h2>
+                <p>Achieving diverse and stable dexterous grasping for general and deformable objects remains a fundamental challenge 
+                  in robotics, due to high-dimensional action spaces and uncertainty in perception. In this paper, we present <b>D3Grasp</b>, 
+                  a multimodal perception-guided reinforcement learning framework designed to enable <b>D</b>iverse and <b>D</b>eformable 
+                  <strong>D</strong>exterous <strong>Grasp</strong>ing. We firstly introduce a unified multimodal representation that integrates visual and 
+                  tactile perception to robustly grasp common objects with diverse properties. Second, we propose an asymmetric reinforcement 
+                  learning architecture that exploits privileged information during training while preserving deployment realism, enhancing 
+                  both generalization and sample efficiency.Third, we meticulously design a training strategy to synthesize contact-rich,
+                  penetration-free, and kinematically feasible grasps with enhanced adaptability to deformable and contact-sensitive objects.
+                  Extensive evaluations confirm that D3Grasp delivers highly robust performance across large-scale and diverse object categories, 
+                  and substantially advances the state of the art in dexterous grasping for deformable and compliant objects, even under perceptual 
+                  uncertainty and real-world disturbances. D3Grasp achieves an average success rate of <strong>95.1</strong>% in real-world trials—outperforming
+                  prior methods on both rigid and deformable objects benchmarks.</p>
+                
+                <div class="keywords">
+                    <div class="keyword">Diverse Grasping</div>
+                    <div class="keyword">Dexterous Grasping</div>
+                    <div class="keyword">Deformable Grasping</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">The Object in Evaluation</h2>
+            <div class="content">
+                <div class="text-content">
+                    <p>Our evaluation includes a comprehensive set of objects. 
+                      The test objects span diverse categories based on material properties and 
+                      structural characteristics:</p>
+                    
+                    <ul style="padding-left: 20px; margin: 20px 0;">
+                        <li><strong>Rigid objects</strong> (bottles, spheres, cylinders)</li>
+                        <li><strong>Complex articulated objects</strong> (scissors, pliers, tools)</li>
+                        <li><strong>Deformable objects</strong> (sponges, dolls, fabric items)</li>
+                        <li><strong>Fragile objects</strong> (eggs, lightbulbs, glassware)</li>
+                    </ul>
+                    
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value">50+</div>
+                            <div class="stat-label">Object Categories</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">500+</div>
+                            <div class="stat-label">Test Trials</div>
+                        </div>
+                    </div>
+                </div>
+              <div class="media-content">
+                  <div class="image-container">
+                      <img src="https://notes.sjtu.edu.cn/uploads/upload_e73f42aff9b93b7ec46c3bf63811444e.JPG" 
+                           alt="Evaluation Object Set Visualization"
+                           class="responsive-image">
+                  </div>
+              </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Grasping of Deformable Objects</h2>
+            
+            <!-- 可变形物体抓取演示 - 修复比例 -->
+            <div class="video-container">
+                <div class="video-placeholder">
+                    <i class="fas fa-play-circle play-icon"></i>
+                    <div>Deformable Object Grasping Demo</div>
+                </div>
+                <iframe 
+                    src="https://www.youtube.com/embed/FJ4fp0aftB0" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                    onload="document.querySelectorAll('.video-placeholder')[1].classList.add('hidden')">
+                </iframe>
+            </div>
+            
+            <div class="text-content" style="margin-top: 30px;">
+                <p>Grasping deformable objects poses significant challenges due to their compliant behavior and tendency to undergo shape changes under applied forces.
+                  The D3Grasp system addresses these challenges by achieving stable grasps while simultaneously minimizing induced deformation.
+                  </p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Grasping in Constrained Environment</h2>
+            
+            <!-- 受限环境抓取演示 - 修复比例 -->
+            <div class="video-container">
+                <div class="video-placeholder">
+                    <i class="fas fa-play-circle play-icon"></i>
+                    <div>Constrained Environment Grasping Demo</div>
+                </div>
+                <iframe 
+                    src="https://www.youtube.com/embed/hE9jmZsXBRU" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                    onload="document.querySelectorAll('.video-placeholder')[2].classList.add('hidden')">
+                </iframe>
+            </div>
+            
+            <div class="text-content" style="margin-top: 30px;">
+                <p>D3Grasp demonstrates exceptional adaptability in constrained environments where traditional grasping methods often struggle. 
+                  Our approach leverages multimodal perception to navigate tight spaces and avoid obstacles while maintaining stable grasps.</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>D3Grasp | Diverse and Deformable Dexterous Grasping for General Objects</p>
+            <p>© 2025 Paxini | All rights reserved</p>
+            <p style="margin-top: 20px;">
+                <i class="fas fa-envelope"></i> readerek@sjtu.edu.cn | 
+                <i class="fab fa-github"></i> github.com/d3grasp | 
+                <i class="fas fa-file-pdf"></i> Download Full Paper
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 添加点击播放功能
+        document.querySelectorAll('.video-placeholder').forEach((placeholder, index) => {
+            placeholder.addEventListener('click', function() {
+                const iframe = this.parentNode.querySelector('iframe');
+                iframe.src = iframe.src + "?autoplay=1";
+                this.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
