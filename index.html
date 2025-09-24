@@ -65,6 +65,20 @@
             font-size: 1.1rem;
             font-weight: 500;
             color: #2c3e50;
+            position: relative;
+            padding: 0 10px;
+        }
+        
+        .author sup {
+            font-size: 0.8rem;
+            margin-left: 2px;
+            color: #3498db;
+        }
+        
+        .author .corresponding {
+            font-size: 0.8rem;
+            margin-left: 2px;
+            color: #333; /* 移除颜色，使用默认颜色 */
         }
         
         .affiliations {
@@ -79,19 +93,12 @@
         
         .affiliation {
             position: relative;
-            padding-left: 20px;
+            padding-left: 0; /* 移除左边的内边距 */
         }
         
+        /* 移除机构前面的点 */
         .affiliation::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            background-color: #3498db;
-            border-radius: 50%;
+            display: none;
         }
         
         .footnote {
@@ -376,7 +383,22 @@
             <h1 class="title-main">D3Grasp</h1>
             <h2 class="title-sub"><b>D</b>iverse and <b>D</b>eformable <b>D</b>exterous Grasping for General Objects</h2>
             
-            <div class="footnote">Anonymous submission</div>
+            <!-- 添加作者信息 -->
+            <div class="authors">
+                <div class="author">Keyu Wang<sup>1</sup></div>
+                <div class="author">Bingcong Lu<sup>1</sup></div>
+                <div class="author">Zhengxue Cheng<sup>1,2</sup><span class="corresponding">†</span></div>
+                <div class="author">Hengdi Zhang<sup>2</sup></div>
+                <div class="author">Li Song<sup>1</sup></div>
+            </div>
+            
+            <!-- 添加机构信息 -->
+            <div class="affiliations">
+                <div class="affiliation"><sup>1</sup>Shanghai Jiao Tong University</div>
+                <div class="affiliation"><sup>2</sup>Paxini Tech.</div>
+            </div>
+            
+            <div class="footnote"><span class="corresponding">†</span>Corresponding author</div>
         </header>
         
         <!-- 多样物体抓取演示 - 修复比例 -->
@@ -508,7 +530,7 @@
             <p>© 2025 Paxini | All rights reserved</p>
             <p style="margin-top: 20px;">
                 <i class="fas fa-envelope"></i> readerek@sjtu.edu.cn | 
-                <i class="fab fa-github"></i> github.com/d3grasp | 
+                <i class="fab fa-github"></i> https://github.com/readerek/D3.github.io | 
                 <i class="fas fa-file-pdf"></i> Download Full Paper
             </p>
         </footer>
